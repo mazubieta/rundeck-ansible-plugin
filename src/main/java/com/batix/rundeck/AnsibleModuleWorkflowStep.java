@@ -13,6 +13,7 @@ import com.dtolabs.rundeck.plugins.step.PluginStepContext;
 import com.dtolabs.rundeck.plugins.step.StepPlugin;
 import com.dtolabs.rundeck.plugins.util.DescriptionBuilder;
 import org.apache.tools.ant.Project;
+import java.nio.file.*;
 
 import java.util.Map;
 
@@ -26,9 +27,12 @@ public class AnsibleModuleWorkflowStep implements StepPlugin, Describable {
     String args = (String) configuration.get("args");
     String extraArgs = (String) configuration.get("extraArgs");
     String sshPass = (String) configuration.get("sshPassword");
+    String tempDir = (String) configuration.get("tempDirectory");
+    Path tempDirectory = Paths.get(tempDir);
+    boolean retainTempDir = (boolean) configuration.get("retainTempDirectory");
     final PluginLogger logger = context.getLogger();
 
-    AnsibleRunner runner = AnsibleRunner.adHoc(module, args).limit(context.getNodes()).extraArgs(extraArgs).sshPass(sshPass);
+    AnsibleRunner runner = AnsibleRunner.adHoc(module, args).limit(context.getNodes()).extraArgs(extraArgs).sshPass(sshPass).tempDirectory(tempDirectory).retainTempDirectory(retainTempDir);
     
     if ("true".equals(System.getProperty("ansible.debug"))) {
       runner.debug();
@@ -78,6 +82,20 @@ public class AnsibleModuleWorkflowStep implements StepPlugin, Describable {
         null,
         PropertyScope.Unspecified,
         AnsibleCommon.getRenderParametersForSshPassword()
+      ))
+      .property(PropertyUtil.string(
+        "tempDirectory",
+        "Temporary Directory",
+        "The directory to execute Ansible",
+        false,
+        null
+      ))
+      .property(PropertyUtil.bool(
+        "retainTempDirectory",
+        "Retain Temporary Directory",
+        "Do not delete the temp dir",
+        false,
+        null
       ))
       .build();
   }
