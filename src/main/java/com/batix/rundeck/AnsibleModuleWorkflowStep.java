@@ -31,7 +31,8 @@ public class AnsibleModuleWorkflowStep implements StepPlugin, Describable {
     Path tempDirectory = Paths.get(tempDir);
     boolean retainTempDir = (boolean) configuration.get("retainTempDirectory");
     final PluginLogger logger = context.getLogger();
-    logger.info(tempDir);
+    logger.log("temp dir is ...");
+    logger.log(tempDir);
 
     AnsibleRunner runner = AnsibleRunner.adHoc(module, args).limit(context.getNodes()).extraArgs(extraArgs).sshPass(sshPass).tempDirectory(tempDirectory).retainTempDirectory(retainTempDir);
     
